@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xsi:schemaLocation=" http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+ http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd 
+ http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd "
+ xmlns:context="http://www.springframework.org/schema/context" 
+ xmlns:tx="http://www.springframework.org/schema/tx" 
+ xmlns:aop="http://www.springframework.org/schema/aop" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xmlns="http://www.springframework.org/schema/beans">
+    
+    <!-- 配置自己的realm -->
+    <bean id="loginRealm" class="com.centurydean.platform.login.realm.LoginRealm"/>      
+	
+	<!-- 配置securityManager -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="loginRealm" />
+	</bean>
+		
+	<!-- 配置shiro过滤链 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager"/>
+		<property name="loginUrl" value="/login.html" />
+		<property name="unauthorizedUrl" value="/unauthor.html"/>
+		<property name="filterChainDefinitions">
+			<value>
+				/login** = anon
+				/static/** = anon
+				/user = perms[user:query]
+				/user/add** = roles[manager]
+				/user/del** = roles[admin]
+				/user/upd** = roles[manager]
+				/** = authc
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+	
+</beans>
